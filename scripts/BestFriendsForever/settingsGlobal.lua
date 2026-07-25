@@ -43,9 +43,9 @@ I.Settings.registerGroup {
             key = 'globalBlacklistByScript',
             name = 'globalBlacklistByScript_name',
             description = 'globalBlacklistByScript_desc',
-            renderer = 'AttendMeList',
+            renderer = 'TextList',
             default = {
-                "RM_GuardSneak",
+                "rm_guardsneak",
                 "mca_guards",
                 "mca_adventurers",
             },
@@ -59,7 +59,10 @@ I.Settings.registerGroup {
         {
             key = 'teleportBlacklistByScript',
             name = 'teleportBlacklistByScript_name',
-            renderer = 'AttendMeList',
+            renderer = 'TextList',
+            default = {
+                "heartfanghuntscript",
+            },
         },
         {
             key = 'immortalityBlacklistMWScript',
@@ -70,7 +73,10 @@ I.Settings.registerGroup {
         {
             key = 'immortalityBlacklistByScript',
             name = 'immortalityBlacklistByScript_name',
-            renderer = 'AttendMeList',
+            renderer = 'TextList',
+            default = {
+                "heartfanghuntscript",
+            },
         },
     }
 }

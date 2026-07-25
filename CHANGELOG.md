@@ -1,5 +1,10 @@
 # Best Friends Forever (OpenMW)
 
+## 1.2.6
+
+- Change the default keybing for Call from None to L for mod compatibility and engine features reasons. This should also eleviate keybing synchronization with the Meditation Skill mod. It's dumb and weird, I know
+- Added Tharsten Heart-Fang's script to Immortality and Teleportation default blacklists
+
 ## 1.2.5
 
 - Added a guardrail for the leader check to Catch Up script

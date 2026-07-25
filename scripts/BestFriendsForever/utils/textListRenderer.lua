@@ -1,9 +1,10 @@
+---@diagnostic disable: missing-fields, redundant-return-value
 ---@omw-context menu
 local I = require("openmw.interfaces")
 local ui = require("openmw.ui")
 local async = require("openmw.async")
 
-I.Settings.registerRenderer('AttendMeList', function(input, set)
+I.Settings.registerRenderer('TextList', function(input, set)
     if not input then
         input = {}
         set(input)
