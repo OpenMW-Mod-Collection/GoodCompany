@@ -1,5 +1,9 @@
 # Best Friends Forever (OpenMW)
 
+## 1.2.7
+
+- Refixed the keybind issue (thx Arrean)
+
 ## 1.2.6
 
 - Change the default keybing for Call from None to L for mod compatibility and engine features reasons. This should also eleviate keybing synchronization with the Meditation Skill mod. It's dumb and weird, I know
