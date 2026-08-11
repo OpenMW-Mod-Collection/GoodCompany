@@ -1,45 +1,53 @@
----@diagnostic disable: missing-fields, undefined-field
+---@diagnostic disable: deprecated, missing-parameter, redundant-return-value, missing-fields, param-type-mismatch
 ---@omw-context menu
 local ui = require('openmw.ui')
 local util = require('openmw.util')
 local async = require('openmw.async')
 local core = require('openmw.core')
 local input = require('openmw.input')
+local storage = require('openmw.storage')
 local I = require('openmw.interfaces')
 
 -- Example:
 -- {
 -- 	key = "VOLUME",
 -- 	name = "Volume (%)",
--- 	description = "Makes stuff loudder and quieter\nValues above 100 only have an effect if the game's effective effect volume is below 100% (total volume times effect volume)",
--- 	renderer = "SuperSlider4",
+-- 	description = "Makes stuff louder and quieter\nValues above 100 only have an effect if the game's effective effect volume is below 100% (total volume times effect volume)",
+-- 	renderer = "SuperSlider6",
 -- 	default = 90,
--- 	argument = { -- NOTE: maybe argument can't be a reused table
--- 		min = 0,                    -- default: 0
--- 		max = 300,                  -- default: 100
--- 		step = 5,                   -- default: 1
--- 		default = 90,               -- default: some features disabled // NOTE: default needs to be defined here too for the default mark and reset button to show up
--- 		showDefaultMark = true,     -- default: false
--- 		showResetButton = false,    -- default: false
--- 		tinyReset = false,          -- default: false // narrow reset button labeled "R"
---		bottomRow = true,           -- default: false // NOTE: Puts the textbox and the reset button below the slider (
--- 		minLabel = "Silent",        -- default: hidden
--- 		maxLabel = "Loud",          -- default: hidden
--- 		centerLabel = "Normal",     -- default: hidden
--- 		labelSize = 12,             -- default: max(thickness-2, 10)
--- 		width = 150,                -- default: 200
--- 		thickness = 14,             -- default: 15
--- 		unit = "%",                 -- default: none
+-- 	argument = { -- required, one table per setting, the renderer identifies the setting by it
+-- 		min = 0, 	                    -- default: 0
+-- 		max = 300,                      -- default: 100
+-- 		step = 5, 						-- default: 1
+-- 		stepAffectsTextInput = false, 	-- default: false // snaps typed values to the step
+-- 		default = 90,                   -- default: some features disabled // NOTE: default needs to be defined here too for the default mark and reset button to show up
+-- 		showDefaultMark = true,         -- default: false
+-- 		showResetButton = false,        -- default: false
+-- 		tinyReset = false,              -- default: false // narrow reset button labeled "R"
+-- 		bottomRow = true,               -- default: false // NOTE: puts the textbox and the reset button below the slider, fixed height, thickness does not scale it
+-- 		minLabel = "Silent",            -- default: hidden
+-- 		maxLabel = "Loud",              -- default: hidden
+-- 		centerLabel = "Normal",         -- default: hidden
+-- 		labelSize = 12,                 -- default: max(thickness-2, 10)
+-- 		width = 150,                    -- default: 200
+-- 		thickness = 14,                 -- default: 15
+-- 		unit = "%",                     -- default: none
 -- 	},
 -- },
 
 
 -- =========================================================
 -- =========================================================
-SLIDER_RENDERER_ID = "SuperSlider4"
+local SLIDER_RENDERER_ID = "SuperSlider6"
 
--- bail if already installed
-if I.SuperSlider4 then return end
+-- session only install flags for other mods, "SuperSlider6" = true, "SuperSlider" = 6
+local installedRenderers = storage.playerSection("InstalledSettingsRenderers")
+installedRenderers:setLifeTime(storage.LIFE_TIME.GameSession)
+installedRenderers:set(SLIDER_RENDERER_ID, true)
+local familyKey, familyVersion = SLIDER_RENDERER_ID:match("^(.-)(%d+)$")
+if (installedRenderers:get(familyKey) or 0) < tonumber(familyVersion) then
+    installedRenderers:set(familyKey, tonumber(familyVersion))
+end
 
 local leftArrow = ui.texture { path = 'textures/omw_menu_scroll_left.dds' }
 local rightArrow = ui.texture { path = 'textures/omw_menu_scroll_right.dds' }
@@ -80,6 +88,7 @@ local defaultArgument = {
     min = 0,
     max = 100,
     step = 1,
+    stepAffectsTextInput = false,
     width = 200,
     thickness = 15,
     showDefaultMark = false,
@@ -94,18 +103,14 @@ local defaultArgument = {
 }
 
 local function applyDefaults(argument, defaults)
-    if not argument then return defaults end
-    if pairs(defaults) and pairs(argument) then
-        local result = {}
-        for k, v in pairs(defaults) do
-            result[k] = v
-        end
-        for k, v in pairs(argument) do
-            result[k] = v
-        end
-        return result
+    local result = {}
+    for k, v in pairs(defaults) do
+        result[k] = v
     end
-    return argument
+    for k, v in pairs(argument) do
+        result[k] = v
+    end
+    return result
 end
 
 local function disable(disabled, layout)
@@ -126,6 +131,9 @@ end
 -- =========================================================
 
 I.Settings.registerRenderer(SLIDER_RENDERER_ID, function(value, set, argument)
+    if not argument then
+        error(SLIDER_RENDERER_ID .. ": argument table is required")
+    end
     local originalArgument = argument
     argument = applyDefaults(argument, defaultArgument)
     local min = argument.min
@@ -138,6 +146,8 @@ I.Settings.registerRenderer(SLIDER_RENDERER_ID, function(value, set, argument)
     local handleHeight = math.max(trackHeight - 4, 4)
     local arrowSize = util.vector2(trackHeight, trackHeight)
     local thicknessScale = trackHeight / 14
+    -- bottom row is a fixed strip, thickness does not scale it
+    local bottomRowHeight = 18
 
     local function valueToPosition(val)
         local range = max - min
@@ -149,6 +159,8 @@ I.Settings.registerRenderer(SLIDER_RENDERER_ID, function(value, set, argument)
         local normalized = pos / (trackWidth - handleWidth)
         local rawValue = min + (normalized * (max - min))
         local snapped = math.floor(rawValue / step + 0.5) * step
+        -- min wins the left end when it sits off the multiples
+        if rawValue - min < math.abs(rawValue - snapped) then return min end
         return util.clamp(snapped, min, max)
     end
 
@@ -251,7 +263,8 @@ I.Settings.registerRenderer(SLIDER_RENDERER_ID, function(value, set, argument)
     local unitLength = #argument.unit
 
     -- 1000 = +1, 10000 = +2, etc...
-    unitLength = unitLength + math.max(0, math.floor(math.log10(max)) - 2)
+    local widestValue = math.max(math.abs(min), math.abs(max), 1)
+    unitLength = unitLength + math.max(0, math.floor(math.log10(widestValue)) - 2)
     if min < 0 then
         unitLength = unitLength + 1
     end
@@ -260,7 +273,7 @@ I.Settings.registerRenderer(SLIDER_RENDERER_ID, function(value, set, argument)
     end
 
     local trackContent = {}
-    if argument.showDefaultMark and default ~= min and math.abs(value - default) > 0.00001 then
+    if argument.showDefaultMark and default ~= min then
         local markPos = valueToPosition(default)
         table.insert(trackContent, {
             type = ui.TYPE.Widget,
@@ -274,6 +287,7 @@ I.Settings.registerRenderer(SLIDER_RENDERER_ID, function(value, set, argument)
                     props = {
                         resource = trackTexture,
                         relativeSize = util.vector2(1, 1),
+                        alpha = math.abs(value - default) > 0.00001 and 1 or 0,
                     },
                 },
             },
@@ -322,7 +336,7 @@ I.Settings.registerRenderer(SLIDER_RENDERER_ID, function(value, set, argument)
     local resetButton
     if argument.showResetButton and default then
         local l10n = core.l10n('Interface')
-        local resetLabel = argument.tinyReset and "R" or (argument.resetLabel or l10n('Reset'))
+        local resetLabel = argument.tinyReset and "R" or l10n('Reset')
         local resetToDefault = async:callback(function() set(default) end)
         -- narrow width when tinyReset
         local resetWidth
@@ -333,17 +347,14 @@ I.Settings.registerRenderer(SLIDER_RENDERER_ID, function(value, set, argument)
         end
         resetButton = {
             template = I.MWUI.templates.box,
-            props = {
-                size = util.vector2(resetWidth, not argument.bottomRow and trackHeight or 14),
-            },
             content = ui.content {
                 {
                     template = I.MWUI.templates.textNormal,
                     props = {
                         text = resetLabel,
-                        size = util.vector2(resetWidth, not argument.bottomRow and trackHeight or 18),
+                        size = util.vector2(resetWidth, not argument.bottomRow and trackHeight or bottomRowHeight),
                         autoSize = false,
-                        textSize = not argument.bottomRow and trackHeight + 1 or 18,
+                        textSize = not argument.bottomRow and trackHeight + 1 or bottomRowHeight,
                         textAlignH = ui.ALIGNMENT.Center,
                     },
                 },
@@ -366,9 +377,9 @@ I.Settings.registerRenderer(SLIDER_RENDERER_ID, function(value, set, argument)
                 {
                     template = I.MWUI.templates.textEditLine,
                     props = {
-                        size = util.vector2(50 + unitLength * 5, 18),
+                        size = util.vector2(50 + unitLength * 5, bottomRowHeight),
                         text = displayText,
-                        textSize = 18,
+                        textSize = bottomRowHeight,
                         textAlignH = ui.ALIGNMENT.Center,
                         autoSize = false,
                     },
@@ -383,7 +394,7 @@ I.Settings.registerRenderer(SLIDER_RENDERER_ID, function(value, set, argument)
                 autoSize = false,
                 align = ui.ALIGNMENT.End,
                 arrange = ui.ALIGNMENT.End,
-                size = util.vector2(trackWidth, 23),
+                size = util.vector2(trackWidth, bottomRowHeight + 5),
             },
             external = { stretch = 1 },
             content = ui.content(bottomContent),
@@ -438,7 +449,6 @@ I.Settings.registerRenderer(SLIDER_RENDERER_ID, function(value, set, argument)
             type = ui.TYPE.Flex,
             props = {
                 horizontal = true,
-                -- autoSize off so the grow spacers spread the labels under api 132
                 autoSize = false,
                 size = util.vector2(sliderWidth, labelSize + 2),
             },
@@ -544,8 +554,6 @@ end
 -- =========================================================
 
 return {
-    interfaceName = "SuperSlider4",
-    interface = {},
     engineHandlers = {
         onMouseWheel = onMouseWheel,
         onFrame = onFrame,

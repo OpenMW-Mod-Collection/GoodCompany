@@ -1,5 +1,9 @@
 # Best Friends Forever (OpenMW)
 
+## 2.0
+
+- Updated slider renderer from v4 to v6
+
 ## 1.2.7
 
 - Refixed the keybind issue (thx Arrean)

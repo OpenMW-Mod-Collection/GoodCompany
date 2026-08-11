@@ -2,7 +2,10 @@
 ---@omw-context menu
 local I = require('openmw.interfaces')
 local util = require("openmw.util")
-local ui   = require("openmw.ui")
+local ui = require("openmw.ui")
+local core = require("openmw.core")
+
+local l10n = core.l10n("BestFriendsForever")
 
 local presetColors = {
     "d4edfc", -- thirst
@@ -49,7 +52,7 @@ I.Settings.registerGroup {
             key = 'callDistance',
             name = 'callDistance_name',
             description = "callDistance_desc",
-            renderer = 'SuperSlider4',
+            renderer = 'SuperSlider6',
             default = 200,
             argument = {
                 min = -1000,
@@ -65,6 +68,10 @@ I.Settings.registerGroup {
         },
     }
 }
+
+
+
+
 
 I.Settings.registerPage {
     key = 'BestFriendsForever_HUD',
@@ -88,26 +95,17 @@ I.Settings.registerGroup {
             default = true,
         },
         {
-            key = 'hudDisplay',
-            name = 'hudDisplay_name',
-            renderer = 'select',
-            argument = {
-                l10n = "BestFriendsForever",
-                items = {
-                    "Always",
-                    "Interface Only",
-                    "Hide on Interface",
-                    "Hide on Dialogue Only",
-                },
-            },
-            default = "Hide on Dialogue Only",
-        },
-        {
             key = 'pollingRate',
             name = 'pollingRate_name',
             description = 'pollingRate_desc',
             renderer = "number",
             default = .1,
+        },
+        {
+            key = 'maxWidgets',
+            name = 'maxWidgets_name',
+            renderer = "number",
+            default = 5,
         },
         {
             key = 'lockPosition',
@@ -117,15 +115,9 @@ I.Settings.registerGroup {
             default = true,
         },
         {
-            key = 'maxWidgets',
-            name = 'maxWidgets_name',
-            renderer = "number",
-            default = 5,
-        },
-        {
             key = 'posX',
             name = 'posX_name',
-            renderer = "SuperSlider4",
+            renderer = "SuperSlider6",
             default = 10,
             argument = {
                 max = ui.screenSize().x,
@@ -139,7 +131,7 @@ I.Settings.registerGroup {
         {
             key = 'posY',
             name = 'posY_name',
-            renderer = "SuperSlider4",
+            renderer = "SuperSlider6",
             default = 10,
             argument = {
                 max = ui.screenSize().y,
@@ -179,16 +171,31 @@ I.Settings.registerGroup {
             default = "Right",
         },
         {
+            key = 'horizontalLayout',
+            name = 'horizontalLayout_name',
+            renderer = 'checkbox',
+            default = false,
+        },
+        {
             key = 'enableBordersAndBg',
             name = 'enableBordersAndBg_name',
             renderer = 'checkbox',
             default = true,
         },
         {
-            key = 'horizontalLayout',
-            name = 'horizontalLayout_name',
-            renderer = 'checkbox',
-            default = false,
+            key = 'hudDisplay',
+            name = 'hudDisplay_name',
+            renderer = 'select',
+            argument = {
+                l10n = "BestFriendsForever",
+                items = {
+                    "Always",
+                    "Interface Only",
+                    "Hide on Interface",
+                    "Hide on Dialogue Only",
+                },
+            },
+            default = "Hide on Dialogue Only",
         },
     }
 }
@@ -202,9 +209,50 @@ I.Settings.registerGroup {
     order = 21,
     settings = {
         {
+            key = 'enabledElements',
+            name = 'enabledElements_name',
+            description = 'enabledElements_desc',
+            renderer = 'multiselect',
+            default = {
+                name    = true,
+                health  = true,
+                magicka = true,
+                fatigue = true,
+                labels  = true,
+                icons   = true,
+                effects   = true,
+                diseases   = true,
+                damagedStats   = true,
+            },
+            argument = {
+                keys = {
+                    "name",
+                    "health",
+                    "magicka",
+                    "fatigue",
+                    "labels",
+                    "icons",
+                    "effects",
+                    "diseases",
+                    "damagedStats",
+                },
+                aliases = {
+                    name    = l10n("enabledElements_name"),
+                    health  = l10n("enabledElements_health"),
+                    magicka = l10n("enabledElements_magicka"),
+                    fatigue = l10n("enabledElements_fatigue"),
+                    labels  = l10n("enabledElements_labels"),
+                    icons   = l10n("enabledElements_icons"),
+                    effects = l10n("enabledElements_effects"),
+                    diseases  = l10n("enabledElements_diseases"),
+                    damagedStats   = l10n("enabledElements_damagedStats"),
+                },
+            },
+        },
+        {
             key = 'nameTextSize',
             name = 'nameTextSize_name',
-            renderer = 'SuperSlider4',
+            renderer = 'SuperSlider6',
             default = 18,
             argument = {
                 min = 1,
@@ -213,15 +261,6 @@ I.Settings.registerGroup {
                 showResetButton = true,
                 bottomRow = true,
             }
-        },
-        {
-            key = 'nameColor',
-            name = 'nameColor_name',
-            renderer = "SuperColorPicker2",
-            default = util.color.hex("eee2c9"),
-            argument = {
-                presetColors = presetColors,
-            },
         },
         {
             key = 'uiAlign',
@@ -237,55 +276,28 @@ I.Settings.registerGroup {
             },
             default = "Center",
         },
-        {
-            key = 'healthBarEnabled',
-            name = 'healthBarEnabled_name',
-            renderer = 'checkbox',
-            default = true,
-        },
-        {
-            key = 'healthBarColor',
-            name = 'healthBarColor_name',
-            renderer = "SuperColorPicker2",
-            default = util.color.hex("c83c1e"),
-            argument = {
-                presetColors = presetColors,
-            },
-        },
-        {
-            key = 'magickaBarEnabled',
-            name = 'magickaBarEnabled_name',
-            renderer = 'checkbox',
-            default = true,
-        },
-        {
-            key = 'magickaBarColor',
-            name = 'magickaBarColor_name',
-            renderer = "SuperColorPicker2",
-            default = util.color.hex("35459f"),
-            argument = {
-                presetColors = presetColors,
-            },
-        },
-        {
-            key = 'fatigueBarEnabled',
-            name = 'fatigueBarEnabled_name',
-            renderer = 'checkbox',
-            default = true,
-        },
-        {
-            key = 'fatigueBarColor',
-            name = 'fatigueBarColor_name',
-            renderer = "SuperColorPicker2",
-            default = util.color.hex("00963c"),
-            argument = {
-                presetColors = presetColors,
-            },
-        },
+        -- {
+        --     key = 'healthBarEnabled',
+        --     name = 'healthBarEnabled_name',
+        --     renderer = 'checkbox',
+        --     default = true,
+        -- },
+        -- {
+        --     key = 'magickaBarEnabled',
+        --     name = 'magickaBarEnabled_name',
+        --     renderer = 'checkbox',
+        --     default = true,
+        -- },
+        -- {
+        --     key = 'fatigueBarEnabled',
+        --     name = 'fatigueBarEnabled_name',
+        --     renderer = 'checkbox',
+        --     default = true,
+        -- },
         {
             key = 'barLength',
             name = 'barLength_name',
-            renderer = 'SuperSlider4',
+            renderer = 'SuperSlider6',
             default = 100,
             argument = {
                 max = 500,
@@ -298,7 +310,7 @@ I.Settings.registerGroup {
         {
             key = 'barWidth',
             name = 'barWidth_name',
-            renderer = 'SuperSlider4',
+            renderer = 'SuperSlider6',
             default = 16,
             argument = {
                 max = 50,
@@ -308,18 +320,31 @@ I.Settings.registerGroup {
                 bottomRow = true,
             }
         },
+        -- {
+        --     key = 'barLabels',
+        --     name = 'barLabels_name',
+        --     renderer = 'checkbox',
+        --     default = true,
+        -- },
+        -- {
+        --     key = 'combatIcon',
+        --     name = 'combatIcon_name',
+        --     description = 'combatIcon_desc',
+        --     renderer = 'checkbox',
+        --     default = true,
+        -- },
         {
-            key = 'barLabels',
-            name = 'barLabels_name',
-            renderer = 'checkbox',
-            default = true,
-        },
-        {
-            key = 'combatIcon',
-            name = 'combatIcon_name',
-            description = 'combatIcon_desc',
-            renderer = 'checkbox',
-            default = true,
+            key = 'labelDisplayMode',
+            name = 'labelDisplayMode_name',
+            renderer = 'select',
+            argument = {
+                l10n = "BestFriendsForever",
+                items = {
+                    "Current",
+                    "Current/Max",
+                },
+            },
+            default = "Current/Max",
         },
         {
             key = 'horizontalIcons',
@@ -333,12 +358,123 @@ I.Settings.registerGroup {
             renderer = 'checkbox',
             default = true,
         },
+        -- {
+        --     key = 'immortalityIntegration',
+        --     name = 'immortalityIntegration_name',
+        --     description = "immortalityIntegration",
+        --     renderer = 'checkbox',
+        --     default = true,
+        -- },
         {
-            key = 'immortalityIntegration',
-            name = 'immortalityIntegration_name',
-            description = "immortalityIntegration",
+            key = 'showConstEffects',
+            name = 'showConstEffects_name',
             renderer = 'checkbox',
-            default = true,
+            default = false,
+        },
+        {
+            key = 'effectIconSize',
+            name = 'effectIconSize_name',
+            renderer = 'SuperSlider6',
+            default = 24,
+            argument = {
+                default = 24,
+                showDefaultMark = true,
+                showResetButton = true,
+                bottomRow = true,
+            }
+        },
+        {
+            key = 'maxEffects',
+            name = 'maxEffects_name',
+            renderer = "number",
+            default = 10,
+        },
+        {
+            key = 'diseaseVerbosity',
+            name = 'diseaseVerbosity_name',
+            renderer = 'select',
+            argument = {
+                l10n = "BestFriendsForever",
+                items = {
+                    "Full name",
+                    "Unnamed 'Common/Blight Disease'",
+                    "Undiagnosed 'Disease'",
+                },
+            },
+            default = "Full name",
+        },
+        {
+            key = 'statDamageVerbosity',
+            name = 'statDamageVerbosity_name',
+            description = 'statDamageVerbosity_desc',
+            renderer = 'select',
+            argument = {
+                l10n = "BestFriendsForever",
+                items = {
+                    "Exact number",
+                    "Only stat name",
+                    "Only stat type",
+                    "Only the fact of it",
+                },
+            },
+            default = "Only stat name",
+        },
+        {
+            key = 'nameColor',
+            name = 'nameColor_name',
+            renderer = "SuperColorPicker2",
+            default = util.color.hex("eee2c9"),
+            argument = {
+                presetColors = presetColors,
+            },
+        },
+
+        {
+            key = 'healthBarColor',
+            name = 'healthBarColor_name',
+            renderer = "SuperColorPicker2",
+            default = util.color.hex("c83c1e"),
+            argument = {
+                presetColors = presetColors,
+            },
+        },
+
+        {
+            key = 'magickaBarColor',
+            name = 'magickaBarColor_name',
+            renderer = "SuperColorPicker2",
+            default = util.color.hex("35459f"),
+            argument = {
+                presetColors = presetColors,
+            },
+        },
+
+        {
+            key = 'fatigueBarColor',
+            name = 'fatigueBarColor_name',
+            renderer = "SuperColorPicker2",
+            default = util.color.hex("00963c"),
+            argument = {
+                presetColors = presetColors,
+            },
+        },
+        {
+            key = 'diseaseNameColor',
+            name = 'diseaseNameColor_name',
+            renderer = "SuperColorPicker2",
+            default = util.color.hex("c83c1e"),
+            argument = {
+                presetColors = presetColors,
+            },
+        },
+        {
+            key = 'statDamageColor',
+            name = 'statDamageColor_name',
+            renderer = "SuperColorPicker2",
+            default = util.color.hex("c83c1e"),
+            argument = {
+                presetColors = presetColors,
+            },
         },
     }
 }

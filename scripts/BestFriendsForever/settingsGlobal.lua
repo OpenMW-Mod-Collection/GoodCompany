@@ -28,6 +28,12 @@ I.Settings.registerGroup {
             renderer = 'checkbox',
             default = true,
         },
+        {
+            key = 'enableWard',
+            name = 'enableWard_name',
+            renderer = 'checkbox',
+            default = false,
+        },
     }
 }
 
@@ -94,7 +100,7 @@ I.Settings.registerGroup {
             key = 'threshold',
             name = 'threshold_name',
             description = "threshold_desc",
-            renderer = "SuperSlider4",
+            renderer = "SuperSlider6",
             default = 10,
             argument = {
                 default = 10,
@@ -106,7 +112,7 @@ I.Settings.registerGroup {
         {
             key = 'upDelay',
             name = 'upDelay_name',
-            renderer = "SuperSlider4",
+            renderer = "SuperSlider6",
             default = 10,
             argument = {
                 default = 10,
@@ -119,7 +125,7 @@ I.Settings.registerGroup {
         {
             key = 'deathChance',
             name = 'deathChance_name',
-            renderer = "SuperSlider4",
+            renderer = "SuperSlider6",
             default = 1,
             argument = {
                 min = 0,
@@ -160,7 +166,7 @@ I.Settings.registerGroup {
             key = 'startDist',
             name = 'startDist_name',
             description = "startDist_desc",
-            renderer = 'SuperSlider4',
+            renderer = 'SuperSlider6',
             default = 200,
             argument = {
                 max = 5000,
@@ -175,7 +181,7 @@ I.Settings.registerGroup {
             key = 'maxDist',
             name = 'maxDist_name',
             description = "maxDist_desc",
-            renderer = 'SuperSlider4',
+            renderer = 'SuperSlider6',
             default = 2000,
             argument = {
                 max = 5000,
@@ -185,6 +191,32 @@ I.Settings.registerGroup {
                 showResetButton = true,
                 bottomRow = true,
             }
+        },
+    }
+}
+
+I.Settings.registerGroup {
+    key = 'SettingsBestFriendsForever_ward',
+    page = 'BestFriendsForever',
+    l10n = 'BestFriendsForever',
+    name = 'ward_groupName',
+    description = "ward_groupDesc",
+    permanentStorage = true,
+    order = 10,
+    settings = {
+        {
+            key = 'disableDiseases',
+            name = 'disableDiseases_name',
+            description = "disableDiseases_desc",
+            renderer = 'checkbox',
+            default = false,
+        },
+        {
+            key = 'disableStatDamage',
+            name = 'disableStatDamage_name',
+            description = "disableStatDamage_desc",
+            renderer = 'checkbox',
+            default = false,
         },
     }
 }

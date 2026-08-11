@@ -1,6 +1,8 @@
-MENU: scripts/BestFriendsForever/utils/sliderRenderer.lua
+MENU: scripts/BestFriendsForever/utils/superSlider6.lua
 MENU: scripts/BestFriendsForever/utils/textListRenderer.lua
 MENU: scripts/BestFriendsForever/utils/colorPicker.lua
+MENU: scripts/BestFriendsForever/utils/sorresRenderers.lua
+
 PLAYER: scripts/BestFriendsForever/settingsPlayer.lua
 GLOBAL: scripts/BestFriendsForever/settingsGlobal.lua
 
